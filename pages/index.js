@@ -1,27 +1,34 @@
-// import ... from '...' loads something from another file or package so this file can use it.
-// This line brings in Next.js's Head component. Use it to put things in the document <head>
-// (for example the browser tab title). 'next/head' is a Next.js package, not a local file.
+// Bring in Next.js Head so this page can set the browser tab title
 import Head from 'next/head';
-// Brings in Next.js's Link component. Unlike a normal <a href>, Link navigates between
-// pages in this app without a full page reload (client-side navigation).
-import Link from 'next/link';
-// Loads two things from the local layout.js file (one folder up, then into components/):
-// Layout is the default export — a wrapper that shares header/profile styling.
-// siteTitle is a named export (a string constant). It is imported here but not used on
-// this page; the tab title is written by hand in <Head> instead.
+// Bring in the shared Layout wrapper and the siteTitle string from layout.js
 import Layout, { siteTitle } from '../components/layout';
-// Loads a CSS Module from the shared utility stylesheet. utilStyles is an object of class
-// names. utilStyles.headingMd is the hashed class for that style so it does not clash with
-// other CSS. Used below as className={utilStyles.headingMd}.
+// Bring in CSS Module class names (hashed at build time) from utils.module.css
 import utilStyles from '../styles/utils.module.css';
+// Bring in the helper that reads markdown files and returns posts sorted by date
+import { getSortedPostsData } from '../lib/posts';
+// Bring in Next.js Link for client-side navigation between pages
+import Link from 'next/link';
+// Bring in the Date component that formats a post's date string
+import Date from '../components/date';
 
-// export default function ...() defines the React component for this page and makes it the
-// default export. In the Pages Router, the default export of a file in pages/ is what
-// Next.js renders for that URL. This file is pages/index.js, so Home maps to the "/" route.
-export default function Home() {
-  // return sends the UI (JSX) back so React can display it. Everything inside the
-  // parentheses is markup. Layout gets home so the home layout variant is used; Head sets
-  // the tab title; Link goes to /posts/first-post.
+
+ 
+// Next.js calls this at build time to load data before the Home page is rendered
+export async function getStaticProps() {
+  // Read every markdown post and get an array of { id, date, title } objects
+  const allPostsData = getSortedPostsData();
+  // Send that array back to Next.js so it can pass it into the Home component
+  return {
+    // props is the object Next.js injects as arguments to Home
+    props: {
+      // Same as allPostsData: allPostsData — Home will receive this as a prop
+      allPostsData,
+    },
+  };
+}
+// The Home page component; allPostsData is the array from getStaticProps
+export default function Home({ allPostsData }) {
+  // Give React the JSX tree to display for the home page
   return (
     <Layout home>
       <Head>
@@ -39,15 +46,22 @@ export default function Home() {
           (This is a sample website - you’ll be building a site like this on{' '}
           <a href="https://nextjs.org/learn">our Next.js tutorial</a>.)
         </p>
-        <p>
-          {/* Link is the Next.js component imported above. href="/posts/first-post" 
-          is the destination URL (the first-post.js page). "First Post" is the clickable text. 
-          Clicking it navigates without a full page reload. */}
-          <Link href="/posts/first-post">First Post</Link>
-        </p>
       </section>
-
-      
+      {/* Add this <section> tag below the existing <section> tag */}
+      <section className={`${utilStyles.headingMd} ${utilStyles.padding1px}`}>
+        <h2 className={utilStyles.headingLg}>Blog</h2>
+        <ul className={utilStyles.list}>
+          {allPostsData.map(({ id, date, title }) => ( // For each post, pull id, date, and title and render one list item
+            <li className={utilStyles.listItem} key={id}>
+            <Link href={`/posts/${id}`}>{title}</Link>
+            <br />
+            <small className={utilStyles.lightText}>
+              <Date dateString={date} />
+            </small>
+          </li>
+          ))}
+        </ul>
+      </section>
     </Layout>
   );
 }

@@ -17,7 +17,8 @@ body {
     color: white; /*custom css*/
   line-height: 1.6;
   font-size: 20px;  /*custom css*/
-  background: #120035; /*custom css*/
+  background: #000000; /*custom css*/
+  
 
 
 }
@@ -27,13 +28,13 @@ body {
 }
  
 a {
-  color: #6c3054; /*custom css*/
+  color: #ffffff;/*custom css*/
   text-decoration: none;
 }
  
 a:hover {
   text-decoration: underline;
-  color:#7041c4  /*custom css*/
+  color:#c20098  /*custom css*/
 
 }
  
